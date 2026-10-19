@@ -155,6 +155,7 @@ help:
 	@echo "DS4 build targets:"
 	@echo "  make cuda-spark          Build CUDA for DGX Spark / GB10"
 	@echo "  make cuda-generic        Build CUDA for a generic local CUDA GPU"
+	@echo "  make cuda-turing         Build CUDA for Turing GPUs (e.g. RTX 2080 Ti, sm_75)"
 	@echo "  make cuda CUDA_ARCH=sm_N Build CUDA with an explicit nvcc -arch value"
 	@echo "  make test-cuda-flash-moe-decode  Check SM120 Flash IQ2/Q2 decode exactness"
 	@echo "  make bench-cuda-flash-moe-decode Benchmark SM120 Flash IQ2/Q2 decode"
@@ -175,10 +176,13 @@ cuda-spark:
 cuda-generic:
 	$(MAKE) -B ds4 ds4-server ds4-bench ds4-eval ds4-agent CUDA_ARCH=native
 
+cuda-turing:
+	$(MAKE) -B ds4 ds4-server ds4-bench ds4-eval ds4-agent CUDA_ARCH=sm_75
+
 cuda:
 	@if [ -z "$(strip $(CUDA_ARCH))" ]; then \
 		echo "error: specify CUDA_ARCH, for example: make cuda CUDA_ARCH=sm_120"; \
-		echo "       or use make cuda-spark / make cuda-generic"; \
+		echo "       or use make cuda-spark / make cuda-generic / make cuda-turing"; \
 		exit 2; \
 	fi
 	$(MAKE) -B ds4 ds4-server ds4-bench ds4-eval ds4-agent CUDA_ARCH="$(CUDA_ARCH)"

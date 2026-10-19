@@ -148,6 +148,52 @@ curl http://127.0.0.1:18099/health
 curl http://127.0.0.1:18099/v1/models
 ```
 
+## Quick Start: RTX 2080 Ti 22 GB
+
+This fork also contains a profile for the **NVIDIA GeForce RTX 2080 Ti 22 GB**
+(Turing, `sm_75`). The card has the same compute capability as the 11 GB
+variant, but the extra VRAM allows a larger persistent expert cache and a
+longer default context than the original 5080-focused script would use.
+
+### 1. Build for Turing
+
+```sh
+make cuda-turing
+```
+
+This is equivalent to `make cuda CUDA_ARCH=sm_75`. The Blackwell-only MXFP4 /
+NVFP4 paths are automatically disabled at compile time, and the runtime falls
+back to the same Q8 / Q4_K / IQ2 paths that were already tested on Turing
+hardware in the upstream DS4 project.
+
+### 2. Start the Local Service
+
+```sh
+./run_ds4_cuda_server_2080ti.sh
+```
+
+Default settings for the 22 GB card:
+
+| Setting | Default | Note |
+| --- | --- | --- |
+| Expert cache | 10 GB | Leaves room for weights, KV, and prefill workspace |
+| Context | 65,536 tokens | Half the 5080 default; raise/lower via `DS4_SERVER_CTX` |
+| Disk KV cache | 4 GB | Stored under `.cache/server-kv` |
+| Prefill chunk | 1,024 | Can be tuned with `DS4_SERVER_PREFILL_CHUNK` |
+
+All defaults can be overridden through environment variables before running the
+script, for example:
+
+```sh
+export DS4_SERVER_EXPERT_CACHE=12GB
+export DS4_SERVER_CTX=32768
+./run_ds4_cuda_server_2080ti.sh
+```
+
+If the build environment is Windows and `make` is not available, see
+`BUILD_WINDOWS.md` for an MSYS2/MinGW-w64 toolchain setup and a PowerShell
+build helper.
+
 ## Running the Services and Tools
 
 ### Browser Chat and Monitor
